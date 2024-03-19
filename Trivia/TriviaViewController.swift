@@ -14,7 +14,9 @@ class TriviaViewController: UIViewController {
   private var questions = [TriviaQuestion]() // Corrected syntax: Added parentheses to initialize an empty array
   private var currQuestionIndex = 0
   private var numCorrectQuestions = 0
-  
+  private var isGameOver = false
+  let letterChoices = ["A", "B", "C", "D"]
+    
   override func viewDidLoad() {
     super.viewDidLoad()
     addGradient()
@@ -35,31 +37,45 @@ class TriviaViewController: UIViewController {
     }
   }
   
-  private func updateQuestion(withQuestionIndex questionIndex: Int) {
-    currentQuestionNumberLabel.text = "Question: \(questionIndex + 1)/\(questions.count)"
-    let question = questions[questionIndex]
-    questionLabel.text = question.question
-    categoryLabel.text = question.category
-    let answers = ([question.correctAnswer] + question.incorrectAnswers).shuffled()
-    if answers.count > 0 {
-      answerButton0.setTitle(answers[0], for: .normal)
+    private func updateQuestion(withQuestionIndex questionIndex: Int) {
+        currentQuestionNumberLabel.text = "Question: \(questionIndex + 1)/\(questions.count)"
+        let question = questions[questionIndex]
+        questionLabel.text = question.question
+        categoryLabel.text = question.category
+        
+        let answers = ([question.correctAnswer] + question.incorrectAnswers).shuffled()
+        for (index, answerButton) in [answerButton0, answerButton1, answerButton2, answerButton3].enumerated() {
+            guard let button = answerButton else { continue }
+            let letterChoice = letterChoices[index]
+            if index < answers.count {
+                button.titleLabel?.numberOfLines = 0
+                button.titleLabel?.lineBreakMode = .byWordWrapping
+                button.contentHorizontalAlignment = .left
+                button.setTitle("\(letterChoice) - \(answers[index])", for: .normal)
+                button.isHidden = false
+            } else {
+                button.isHidden = true
+            }
+        }
     }
-    if answers.count > 1 {
-      answerButton1.setTitle(answers[1], for: .normal)
-      answerButton1.isHidden = false
-    }
-    if answers.count > 2 {
-      answerButton2.setTitle(answers[2], for: .normal)
-      answerButton2.isHidden = false
-    }
-    if answers.count > 3 {
-      answerButton3.setTitle(answers[3], for: .normal)
-      answerButton3.isHidden = false
-    }
-  }
+
+
+
   
     //updateToNextQuestion Method start
     private func updateToNextQuestion(answer: String) {
+        // Check if the game is over (i.e., all questions have been answered)
+        guard currQuestionIndex < questions.count else {
+            // Show final score if all questions have been answered
+            showFinalScore()
+            return
+        }
+        
+        // Check if the user canceled the game over alert without restarting
+        guard !isGameOver else {
+            return
+        }
+        
         if isCorrectAnswer(answer) {
             numCorrectQuestions += 1
         }
@@ -71,6 +87,7 @@ class TriviaViewController: UIViewController {
         updateQuestion(withQuestionIndex: currQuestionIndex)
     }
 
+
     //updateToNextQuestion Method end
   
   private func isCorrectAnswer(_ answer: String) -> Bool {
@@ -78,22 +95,36 @@ class TriviaViewController: UIViewController {
   }
   //showFinalScore Method start
     private func showFinalScore() {
-        let score = Double(numCorrectQuestions) / Double(questions.count) * 100
         let alertController = UIAlertController(title: "Game over!",
-                                                message: "You scored \(numCorrectQuestions) out of \(questions.count). Your score is \(String(format: "%.2f", score))%",
+                                                message: "Final score: \(numCorrectQuestions)/\(questions.count)",
                                                 preferredStyle: .alert)
-        let restartAction = UIAlertAction(title: "Restart", style: .default) { [unowned self] _ in
-            self.resetGame()
+        let resetAction = UIAlertAction(title: "Restart", style: .default) { [unowned self] _ in
+            currQuestionIndex = 0
+            numCorrectQuestions = 0
+            updateQuestion(withQuestionIndex: currQuestionIndex)
+            // Reset isGameOver to false when the user restarts the game
+            self.isGameOver = false
         }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        
-        alertController.addAction(restartAction)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { [unowned self] _ in
+            // Set isGameOver to true when the user cancels the game over alert
+            self.isGameOver = true
+        }
+        alertController.addAction(resetAction)
         alertController.addAction(cancelAction)
-        
         present(alertController, animated: true, completion: nil)
     }
-    
+
     //showFinalScore Method end
+
+    //This method will handle the case if the user chooses cancel instead of restart after the game completes.
+    private func restartGame() {
+        currQuestionIndex = 0
+        numCorrectQuestions = 0
+        updateQuestion(withQuestionIndex: currQuestionIndex)
+    }
+
+    
+    
 
     private func resetGame() {
         currQuestionIndex = 0
