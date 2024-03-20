@@ -81,20 +81,21 @@ class TriviaViewController: UIViewController {
         // Calculate the percentage of correct answers
         let percentage = Double(numCorrectQuestions) / Double(questions.count) * 100.0
         let formattedPercentage = String(format: "%.2f", percentage)
-        
+
         // Display final score using an alert
         let alertController = UIAlertController(title: "Game over!",
                                                 message: "Final score: \(numCorrectQuestions)/\(questions.count) (\(formattedPercentage)%)",
                                                 preferredStyle: .alert)
-        let resetAction = UIAlertAction(title: "Restart", style: .default) { [unowned self] _ in
-            self.currQuestionIndex = 0
-            self.numCorrectQuestions = 0
-            self.updateQuestion(withQuestionIndex: self.currQuestionIndex)
+        let restartAction = UIAlertAction(title: "Restart with New Questions", style: .default) { [unowned self] _ in
+            self.resetGame()
         }
+        let resetAction = UIAlertAction(title: "Restart with Same Questions", style: .default) { [unowned self] _ in
+            self.restartGame()
+        }
+        alertController.addAction(restartAction)
         alertController.addAction(resetAction)
         present(alertController, animated: true, completion: nil)
     }
-
     //This method will handle the case if the user chooses cancel instead of restart after the game completes.
     private func restartGame() {
         currQuestionIndex = 0
