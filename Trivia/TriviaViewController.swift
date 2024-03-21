@@ -70,7 +70,6 @@ class TriviaViewController: UIViewController {
         }
         updateQuestion(withQuestionIndex: currQuestionIndex)
     }
-
     //updateToNextQuestion Method end
   
   private func isCorrectAnswer(_ answer: String) -> Bool {
@@ -102,8 +101,6 @@ class TriviaViewController: UIViewController {
         numCorrectQuestions = 0
         updateQuestion(withQuestionIndex: currQuestionIndex)
     }
-
-    
     //showFinalScore Method end
 
     private func resetGame() {
@@ -127,8 +124,8 @@ class TriviaViewController: UIViewController {
             }
         }
     }
-
   //showFinalScore Method end
+    
   private func addGradient() {
     let gradientLayer = CAGradientLayer()
     gradientLayer.frame = view.bounds
@@ -138,6 +135,8 @@ class TriviaViewController: UIViewController {
     gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
     view.layer.insertSublayer(gradientLayer, at: 0)
   }
+    
+    //All the connected question buttons
   
   @IBAction func didTapAnswerButton0(_ sender: UIButton) {
     updateToNextQuestion(answer: sender.titleLabel?.text ?? "")

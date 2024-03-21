@@ -8,7 +8,7 @@
 import Foundation
 
 class TriviaQuestionService {
-    
+    //fetching the questions and answers from the API
     static let shared = TriviaQuestionService()
     let url = URL(string: "https://opentdb.com/api.php?amount=10")!
     
