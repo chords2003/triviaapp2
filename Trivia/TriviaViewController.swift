@@ -60,6 +60,7 @@ class TriviaViewController: UIViewController {
     let correctAnswer = questions[currQuestionIndex].correctAnswer
     return selectedAnswer == correctAnswer
   }
+<<<<<<< HEAD
   
   private func showFeedback(_ isCorrect: Bool) {
     feedBackLabel.text = isCorrect ? "Correct!" : "Incorrect!"
@@ -69,6 +70,35 @@ class TriviaViewController: UIViewController {
   private func showFinalScore() {
     let percentage = Double(numCorrectQuestions) / Double(questions.count) * 100.0
     let formattedPercentage = String(format: "%.2f", percentage)
+=======
+  //showFinalScore Method start
+    private func showFinalScore() {
+        // Calculate the percentage of correct answers
+        let percentage = Double(numCorrectQuestions) / Double(questions.count) * 100.0
+        let formattedPercentage = String(format: "%.2f", percentage)
+
+        // Display final score using an alert
+        let alertController = UIAlertController(title: "Game over!",
+                                                message: "Final score: \(numCorrectQuestions)/\(questions.count) (\(formattedPercentage)%)",
+                                                preferredStyle: .alert)
+        let restartAction = UIAlertAction(title: "Restart with New Questions", style: .default) { [unowned self] _ in
+            self.resetGame()
+        }
+        let resetAction = UIAlertAction(title: "Restart with Same Questions", style: .default) { [unowned self] _ in
+            self.restartGame()
+        }
+        alertController.addAction(restartAction)
+        alertController.addAction(resetAction)
+        present(alertController, animated: true, completion: nil)
+    }
+    //This method will handle the case if the user chooses cancel instead of restart after the game completes.
+    private func restartGame() {
+        currQuestionIndex = 0
+        numCorrectQuestions = 0
+        updateQuestion(withQuestionIndex: currQuestionIndex)
+    }
+
+>>>>>>> c81aceee39c0239637a6747513cff6cf3b9e202b
     
     let alertController = UIAlertController(title: "Game over!",
                                             message: "Final score: \(numCorrectQuestions)/\(questions.count) (\(formattedPercentage)%)",
