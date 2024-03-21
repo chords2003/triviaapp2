@@ -2,7 +2,6 @@ import UIKit
 
 class TriviaViewController: UIViewController {
   
-  // Outlets
   @IBOutlet weak var currentQuestionNumberLabel: UILabel!
   @IBOutlet weak var questionContainerView: UIView!
   @IBOutlet weak var questionLabel: UILabel!
@@ -11,32 +10,24 @@ class TriviaViewController: UIViewController {
   @IBOutlet weak var answerButton1: UIButton!
   @IBOutlet weak var answerButton2: UIButton!
   @IBOutlet weak var answerButton3: UIButton!
-  @IBOutlet weak var feedBackLabel: UILabel!
   
-  // Properties
-  private var questions = [TriviaQuestion]()
+  private var questions = [TriviaQuestion]() // Corrected syntax: Added parentheses to initialize an empty array
   private var currQuestionIndex = 0
   private var numCorrectQuestions = 0
-  
-  // MARK: - View Lifecycle
   
   override func viewDidLoad() {
     super.viewDidLoad()
     addGradient()
     questionContainerView.layer.cornerRadius = 8.0
-    fetchQuestions()
-  }
-  
-  // MARK: - Helper Methods
-  
-  private func fetchQuestions() {
-    TriviaQuestionService.shared.fetchQuestions { [weak self] result in
+    
+    // Fetch trivia questions
+    TriviaQuestionService.shared.fetchQuestions { [weak self] result in // Use weak self to avoid retain cycles
       guard let self = self else { return }
       switch result {
       case .success(let questions):
         DispatchQueue.main.async {
-          self.questions = questions
-          self.updateQuestion(withQuestionIndex: self.currQuestionIndex)
+          self.questions = questions // Update questions array
+          self.updateQuestion(withQuestionIndex: self.currQuestionIndex) // Display first question
         }
       case .failure(let error):
         print("Error fetching trivia questions: \(error)")
@@ -50,27 +41,41 @@ class TriviaViewController: UIViewController {
     questionLabel.text = question.question
     categoryLabel.text = question.category
     let answers = ([question.correctAnswer] + question.incorrectAnswers).shuffled()
-    answerButton0.setTitle(answers[0], for: .normal)
-    answerButton1.setTitle(answers[1], for: .normal)
-    answerButton2.setTitle(answers[2], for: .normal)
-    answerButton3.setTitle(answers[3], for: .normal)
+    if answers.count > 0 {
+      answerButton0.setTitle(answers[0], for: .normal)
+    }
+    if answers.count > 1 {
+      answerButton1.setTitle(answers[1], for: .normal)
+      answerButton1.isHidden = false
+    }
+    if answers.count > 2 {
+      answerButton2.setTitle(answers[2], for: .normal)
+      answerButton2.isHidden = false
+    }
+    if answers.count > 3 {
+      answerButton3.setTitle(answers[3], for: .normal)
+      answerButton3.isHidden = false
+    }
   }
   
-  private func checkAnswer(_ selectedAnswer: String) -> Bool {
-    let correctAnswer = questions[currQuestionIndex].correctAnswer
-    return selectedAnswer == correctAnswer
-  }
-<<<<<<< HEAD
+    //updateToNextQuestion Method start
+    private func updateToNextQuestion(answer: String) {
+        if isCorrectAnswer(answer) {
+            numCorrectQuestions += 1
+        }
+        currQuestionIndex += 1
+        guard currQuestionIndex < questions.count else {
+            showFinalScore()
+            return
+        }
+        updateQuestion(withQuestionIndex: currQuestionIndex)
+    }
+
+    //updateToNextQuestion Method end
   
-  private func showFeedback(_ isCorrect: Bool) {
-    feedBackLabel.text = isCorrect ? "Correct!" : "Incorrect!"
-    feedBackLabel.textColor = isCorrect ? .green : .red
+  private func isCorrectAnswer(_ answer: String) -> Bool {
+    return answer == questions[currQuestionIndex].correctAnswer
   }
-  
-  private func showFinalScore() {
-    let percentage = Double(numCorrectQuestions) / Double(questions.count) * 100.0
-    let formattedPercentage = String(format: "%.2f", percentage)
-=======
   //showFinalScore Method start
     private func showFinalScore() {
         // Calculate the percentage of correct answers
@@ -81,10 +86,10 @@ class TriviaViewController: UIViewController {
         let alertController = UIAlertController(title: "Game over!",
                                                 message: "Final score: \(numCorrectQuestions)/\(questions.count) (\(formattedPercentage)%)",
                                                 preferredStyle: .alert)
-        let restartAction = UIAlertAction(title: "Restart with New Questions", style: .default) { [unowned self] _ in
+        let restartAction = UIAlertAction(title: "Would you like to restart with New Questions", style: .cancel) { [unowned self] _ in
             self.resetGame()
         }
-        let resetAction = UIAlertAction(title: "Restart with Same Questions", style: .default) { [unowned self] _ in
+        let resetAction = UIAlertAction(title: "Do you want to restart with Same Questions", style: .default) { [unowned self] _ in
             self.restartGame()
         }
         alertController.addAction(restartAction)
@@ -98,24 +103,32 @@ class TriviaViewController: UIViewController {
         updateQuestion(withQuestionIndex: currQuestionIndex)
     }
 
->>>>>>> c81aceee39c0239637a6747513cff6cf3b9e202b
     
-    let alertController = UIAlertController(title: "Game over!",
-                                            message: "Final score: \(numCorrectQuestions)/\(questions.count) (\(formattedPercentage)%)",
-                                            preferredStyle: .alert)
-    let resetAction = UIAlertAction(title: "Restart", style: .default) { [unowned self] _ in
-      self.restartGame()
+    //showFinalScore Method end
+
+    private func resetGame() {
+        currQuestionIndex = 0
+        numCorrectQuestions = 0
+        questions.removeAll() // Remove existing questions
+        fetchNewQuestions() // Fetch new questions
     }
-    alertController.addAction(resetAction)
-    present(alertController, animated: true, completion: nil)
-  }
-  
-  private func restartGame() {
-    currQuestionIndex = 0
-    numCorrectQuestions = 0
-    updateQuestion(withQuestionIndex: currQuestionIndex)
-  }
-  
+
+    private func fetchNewQuestions() {
+        TriviaQuestionService.shared.fetchQuestions { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let questions):
+                DispatchQueue.main.async {
+                    self.questions = questions
+                    self.updateQuestion(withQuestionIndex: self.currQuestionIndex)
+                }
+            case .failure(let error):
+                print("Error fetching trivia questions: \(error)")
+            }
+        }
+    }
+
+  //showFinalScore Method end
   private func addGradient() {
     let gradientLayer = CAGradientLayer()
     gradientLayer.frame = view.bounds
@@ -126,23 +139,19 @@ class TriviaViewController: UIViewController {
     view.layer.insertSublayer(gradientLayer, at: 0)
   }
   
-  // MARK: - Actions
+  @IBAction func didTapAnswerButton0(_ sender: UIButton) {
+    updateToNextQuestion(answer: sender.titleLabel?.text ?? "")
+  }
   
-    @IBAction func didTapAnswerButton(_ sender: UIButton) {
-        let selectedAnswer = sender.titleLabel?.text ?? ""
-        let isCorrect = checkAnswer(selectedAnswer)
-        showFeedback(isCorrect)
-        
-        if isCorrect {
-            numCorrectQuestions += 1
-        }
-        
-        if currQuestionIndex < questions.count - 1 {
-            currQuestionIndex += 1
-            updateQuestion(withQuestionIndex: currQuestionIndex)
-        } else {
-            showFinalScore()
-        }
-    }
-
+  @IBAction func didTapAnswerButton1(_ sender: UIButton) {
+    updateToNextQuestion(answer: sender.titleLabel?.text ?? "")
+  }
+  
+  @IBAction func didTapAnswerButton2(_ sender: UIButton) {
+    updateToNextQuestion(answer: sender.titleLabel?.text ?? "")
+  }
+  
+  @IBAction func didTapAnswerButton3(_ sender: UIButton) {
+    updateToNextQuestion(answer: sender.titleLabel?.text ?? "")
+  }
 }
