@@ -81,13 +81,13 @@ class TriviaViewController: UIViewController {
         updateQuestion(withQuestionIndex: currQuestionIndex)
     }
     //updateToNextQuestion Method end
-    
+    //Checking and alerting the users answer choice
     private func showCorrectAnswerAlert() {
         let alert = UIAlertController(title: "Correct!", message: nil, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alert, animated: true, completion: nil)
     }
-    
+    //Checking and alerting the users of incroreect answer choice
     private func showIncorrectAnswerAlert(correctAnswer: String) {
         let alert = UIAlertController(title: "Incorrect", message: "The correct answer is: \(correctAnswer)", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
