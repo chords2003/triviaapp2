@@ -60,9 +60,19 @@ class TriviaViewController: UIViewController {
   
     //updateToNextQuestion Method start
     private func updateToNextQuestion(answer: String) {
-        if isCorrectAnswer(answer) {
+        let isCorrect = isCorrectAnswer(answer)
+
+        if isCorrect {
             numCorrectQuestions += 1
+            showCorrectAnswerAlert()
+        } else {
+            guard currQuestionIndex < questions.count else {
+                showFinalScore()
+                return
+            }
+            showIncorrectAnswerAlert(correctAnswer: questions[currQuestionIndex].correctAnswer)
         }
+
         currQuestionIndex += 1
         guard currQuestionIndex < questions.count else {
             showFinalScore()
@@ -71,10 +81,25 @@ class TriviaViewController: UIViewController {
         updateQuestion(withQuestionIndex: currQuestionIndex)
     }
     //updateToNextQuestion Method end
+    
+    private func showCorrectAnswerAlert() {
+        let alert = UIAlertController(title: "Correct!", message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    private func showIncorrectAnswerAlert(correctAnswer: String) {
+        let alert = UIAlertController(title: "Incorrect", message: "The correct answer is: \(correctAnswer)", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
   
-  private func isCorrectAnswer(_ answer: String) -> Bool {
-    return answer == questions[currQuestionIndex].correctAnswer
-  }
+    private func isCorrectAnswer(_ answer: String) -> Bool {
+        guard currQuestionIndex < questions.count else {
+            return false
+        }
+        return answer == questions[currQuestionIndex].correctAnswer
+    }
   //showFinalScore Method start
     private func showFinalScore() {
         // Calculate the percentage of correct answers
@@ -85,12 +110,19 @@ class TriviaViewController: UIViewController {
         let alertController = UIAlertController(title: "Game over!",
                                                 message: "Final score: \(numCorrectQuestions)/\(questions.count) (\(formattedPercentage)%)",
                                                 preferredStyle: .alert)
-        let restartAction = UIAlertAction(title: "Would you like to restart with New Questions", style: .cancel) { [unowned self] _ in
+
+        let restartAction = UIAlertAction(title: "Would you like to restart with New Questions", style: .default) { [unowned self] _ in
+            self.currQuestionIndex = 0
+            self.numCorrectQuestions = 0
             self.resetGame()
         }
+
         let resetAction = UIAlertAction(title: "Do you want to restart with Same Questions", style: .default) { [unowned self] _ in
+            self.currQuestionIndex = 0
+            self.numCorrectQuestions = 0
             self.restartGame()
         }
+
         alertController.addAction(restartAction)
         alertController.addAction(resetAction)
         present(alertController, animated: true, completion: nil)
@@ -153,4 +185,12 @@ class TriviaViewController: UIViewController {
   @IBAction func didTapAnswerButton3(_ sender: UIButton) {
     updateToNextQuestion(answer: sender.titleLabel?.text ?? "")
   }
+    @IBOutlet weak var Category: UIPickerView!
+    
+    
+    @IBOutlet weak var Difficulty: UIPickerView!
+    
+    
+    @IBAction func Confirm(_ sender: Any) {
+    }
 }

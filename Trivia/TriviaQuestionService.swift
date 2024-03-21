@@ -12,7 +12,7 @@ class TriviaQuestionService {
     static let shared = TriviaQuestionService()
     let url = URL(string: "https://opentdb.com/api.php?amount=10")!
     
-    func fetchQuestions(completion: @escaping (Result<[TriviaQuestion], Error>) -> Void) {
+    func fetchQuestions(category: String? = nil, difficulty: String? = nil, completion: @escaping (Result<[TriviaQuestion], Error>) -> Void) {
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else {
                 completion(.failure(error!))
