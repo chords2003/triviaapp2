@@ -17,6 +17,7 @@ struct TriviaQuestion: Decodable {
         case incorrectAnswers = "incorrect_answers"
     }
 
+    //This Boolean variable will handle the questions that are only True or False questions.
     var isTrueFalseQuestion: Bool {
         return incorrectAnswers.count == 1 && (incorrectAnswers[0] == "True" || incorrectAnswers[0] == "False")
     }
