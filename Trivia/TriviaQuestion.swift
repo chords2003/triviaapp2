@@ -1,10 +1,3 @@
-//
-//  TriviaQuestion.swift
-//  Trivia
-//
-//  Created by Mari Batilando on 4/6/23.
-//
-
 import Foundation
 
 struct TriviaQuestion: Decodable {
@@ -14,7 +7,7 @@ struct TriviaQuestion: Decodable {
     let question: String
     let correctAnswer: String
     let incorrectAnswers: [String]
-    
+
     enum CodingKeys: String, CodingKey {
         case type
         case difficulty
@@ -23,5 +16,8 @@ struct TriviaQuestion: Decodable {
         case correctAnswer = "correct_answer"
         case incorrectAnswers = "incorrect_answers"
     }
-}
 
+    var isTrueFalseQuestion: Bool {
+        return incorrectAnswers.count == 1 && (incorrectAnswers[0] == "True" || incorrectAnswers[0] == "False")
+    }
+}

@@ -35,28 +35,41 @@ class TriviaViewController: UIViewController {
     }
   }
   
-  private func updateQuestion(withQuestionIndex questionIndex: Int) {
-    currentQuestionNumberLabel.text = "Question: \(questionIndex + 1)/\(questions.count)"
-    let question = questions[questionIndex]
-    questionLabel.text = question.question
-    categoryLabel.text = question.category
-    let answers = ([question.correctAnswer] + question.incorrectAnswers).shuffled()
-    if answers.count > 0 {
-      answerButton0.setTitle(answers[0], for: .normal)
+    private func updateQuestion(withQuestionIndex questionIndex: Int) {
+        currentQuestionNumberLabel.text = "Question: \(questionIndex + 1)/\(questions.count)"
+        let question = questions[questionIndex]
+        questionLabel.text = question.question
+        categoryLabel.text = question.category
+        
+        // If the question is a True/False question, only show two answer buttons
+        if question.isTrueFalseQuestion {
+            answerButton0.isHidden = false
+            answerButton0.setTitle("True", for: .normal)
+            answerButton1.isHidden = false
+            answerButton1.setTitle("False", for: .normal)
+            answerButton2.isHidden = true
+            answerButton3.isHidden = true
+        } else {
+            // If it's a regular question, show all four answer buttons
+            let answers = ([question.correctAnswer] + question.incorrectAnswers).shuffled()
+            if answers.count > 0 {
+                answerButton0.setTitle(answers[0], for: .normal)
+                answerButton0.isHidden = false
+            }
+            if answers.count > 1 {
+                answerButton1.setTitle(answers[1], for: .normal)
+                answerButton1.isHidden = false
+            }
+            if answers.count > 2 {
+                answerButton2.setTitle(answers[2], for: .normal)
+                answerButton2.isHidden = false
+            }
+            if answers.count > 3 {
+                answerButton3.setTitle(answers[3], for: .normal)
+                answerButton3.isHidden = false
+            }
+        }
     }
-    if answers.count > 1 {
-      answerButton1.setTitle(answers[1], for: .normal)
-      answerButton1.isHidden = false
-    }
-    if answers.count > 2 {
-      answerButton2.setTitle(answers[2], for: .normal)
-      answerButton2.isHidden = false
-    }
-    if answers.count > 3 {
-      answerButton3.setTitle(answers[3], for: .normal)
-      answerButton3.isHidden = false
-    }
-  }
   
     //updateToNextQuestion Method start
     private func updateToNextQuestion(answer: String) {
